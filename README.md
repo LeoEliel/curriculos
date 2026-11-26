@@ -41,3 +41,26 @@ npm run dev                                # http://localhost:8787
 - Visual, impressão (Folha A4 em 1 página, Noir/Editorial com fundo) e arrastar para reordenar continuam iguais.
 
 Os arquivos originais do design ficam em `project/` como referência.
+
+## Importar dados por JSON
+
+No editor (`/editar`), seção **Importar JSON**: cole um JSON e clique em **Aplicar JSON**. Só os campos presentes são substituídos (a foto é mantida) e tudo é salvo no site.
+"Ver modelo" mostra o formato; "Copiar dados atuais" exporta o que está no site. Aceita nomes em português ou inglês
+(ex.: `experiencias`/`experience`, `formacao`/`education`, `habilidades`/`skills`), lista de atividades como array ou texto,
+`inicio`/`fim` em vez de `periodo`, contatos soltos (`telefone`, `email`, `cidade`…) e JSON dentro de ```` ```json ````.
+
+```json
+{
+  "nome": "Nome Sobrenome",
+  "titulo": "Hospitalidade & Atendimento",
+  "contatos": ["(69) 90000-0000", "email@exemplo.com", "Bairro • Cidade – RO"],
+  "objetivo": "Texto do objetivo profissional.",
+  "experiencias": [
+    { "cargo": "Recepcionista", "empresa": "Hotel Exemplo", "periodo": "mar/2024 – Atual",
+      "atividades": ["Atendimento aos hóspedes", "Check-in e check-out"] }
+  ],
+  "formacao": [{ "titulo": "Ensino Médio", "detalhe": "Escola Exemplo (conclusão em 2020)." }],
+  "competencias": ["Responsabilidade", "Organização"],
+  "habilidades": ["Pacote Office"]
+}
+```

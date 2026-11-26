@@ -26,6 +26,16 @@
       <button onClick="{{ restaurar }}" style="align-self:flex-start;cursor:pointer;background:transparent;color:#ece6da;border:1px solid #4a433a;border-radius:4px;padding:11px 12px;font:500 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">Restaurar</button>
     </div>
 
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">IMPORTAR JSON</div>
+    <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#b9b0a0">Cole os dados em JSON e clique em Aplicar. Só os campos presentes são trocados; a foto é mantida.</p>
+    <textarea value="{{ jsonTexto }}" onChange="{{ onJson }}" rows="7" spellcheck="false" placeholder="Cole aqui o JSON…" style="width:100%;box-sizing:border-box;resize:vertical;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 12px/1.5 'JetBrains Mono',monospace;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da"></textarea>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+      <button onClick="{{ aplicarJson }}" style="cursor:pointer;background:#ece6da;color:#0e0c0a;border:0;border-radius:4px;padding:9px 12px;font:600 13px 'Hanken Grotesk',sans-serif" style-hover="background:#fff">Aplicar JSON</button>
+      <button onClick="{{ modeloJson }}" style="cursor:pointer;background:transparent;color:#ece6da;border:1px solid #4a433a;border-radius:4px;padding:9px 12px;font:500 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">Ver modelo</button>
+      <button onClick="{{ copiarJson }}" style="cursor:pointer;background:transparent;color:#ece6da;border:1px solid #4a433a;border-radius:4px;padding:9px 12px;font:500 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">Copiar dados atuais</button>
+    </div>
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:{{ jsonCor }}">{{ jsonMsg }}</p>
+
     <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">FOLHA DE 1 PÁGINA + QR CODE</div>
     <input value="{{ url }}" onChange="{{ onUrl }}" placeholder="{{ urlPadrao }}" style="width:100%;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
     <p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:#b9b0a0">{{ fitStatus }}</p>
@@ -347,6 +357,97 @@ const DEFAULTS = () => ({
   habs: [], url: '', fit: 0
 });
 
+// ---- Importação de JSON: aceita nomes de campos em português ou inglês ----
+const JSON_MODELO = {
+  nome: 'Nome Sobrenome',
+  titulo: 'Hospitalidade & Atendimento',
+  contatos: ['(69) 90000-0000', 'email@exemplo.com', 'Bairro • Cidade – RO'],
+  objetivo: 'Texto do objetivo profissional.',
+  experiencias: [
+    { cargo: 'Recepcionista', empresa: 'Hotel Exemplo', periodo: 'mar/2024 – Atual', atividades: ['Atendimento aos hóspedes', 'Check-in e check-out'] }
+  ],
+  formacao: [{ titulo: 'Ensino Médio', detalhe: 'Escola Exemplo (conclusão em 2020).' }],
+  competencias: ['Responsabilidade', 'Organização'],
+  habilidades: ['Pacote Office'],
+  link: ''
+};
+function pick(o, keys) {
+  if (!o || typeof o !== 'object') return undefined;
+  const lower = {}; Object.keys(o).forEach(k => { lower[k.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[\s_-]/g, '')] = o[k]; });
+  for (const k of keys) { const v = lower[k]; if (v !== undefined && v !== null) return v; }
+  return undefined;
+}
+const txt = v => v == null ? '' : Array.isArray(v) ? v.map(txt).filter(Boolean).join('; ') : typeof v === 'object' ? Object.values(v).map(txt).filter(Boolean).join(' • ') : String(v).trim();
+function lista(v) {
+  if (v == null) return undefined;
+  if (typeof v === 'string') return v.split(/\n|;|•|,/).map(t => t.trim()).filter(Boolean);
+  if (Array.isArray(v)) return v.map(x => typeof x === 'object' && x ? (txt(pick(x, ['nome', 'name', 'titulo', 'title', 'valor', 'value', 'skill'])) || txt(x)) : txt(x)).filter(Boolean);
+  if (typeof v === 'object') return Object.values(v).map(txt).filter(Boolean);
+  return [String(v)];
+}
+function periodo(x) {
+  const p = pick(x, ['periodo', 'period', 'datas', 'dates', 'data', 'date']);
+  if (p != null) return txt(p);
+  const ini = txt(pick(x, ['inicio', 'start', 'startdate', 'de', 'from'])), fim = txt(pick(x, ['fim', 'end', 'enddate', 'ate', 'to', 'termino']));
+  const atual = pick(x, ['atual', 'current']) === true;
+  return ini || fim ? [ini, fim || (atual || ini ? 'Atual' : '')].filter(Boolean).join(' – ') : '';
+}
+function normalizarJson(raw) {
+  let src = String(raw || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+  if (!src) throw new Error('Cole um JSON no campo acima.');
+  let d;
+  try { d = JSON.parse(src); } catch (e) { throw new Error('JSON inválido: ' + e.message); }
+  if (Array.isArray(d) || !d || typeof d !== 'object') throw new Error('O JSON precisa ser um objeto { … }.');
+  const inner = pick(d, ['curriculo', 'resume', 'cv', 'dados', 'data']);
+  if (inner && typeof inner === 'object' && !Array.isArray(inner) && pick(d, ['nome', 'name']) === undefined) d = inner;
+  const out = {}, usados = [];
+  const set = (k, v, rot) => { if (v !== undefined) { out[k] = v; usados.push(rot); } };
+  const pessoa = pick(d, ['dadospessoais', 'pessoal', 'personal', 'basics', 'perfil', 'profile']);
+  const P = pessoa && typeof pessoa === 'object' ? Object.assign({}, pessoa, d) : d;
+  const nome = pick(P, ['nome', 'name', 'nomecompleto', 'fullname']);
+  set('nome', nome === undefined ? undefined : txt(nome), 'nome');
+  const tit = pick(P, ['titulo', 'title', 'area', 'cargo', 'headline', 'label', 'profissao', 'role']);
+  set('titulo', tit === undefined || typeof tit === 'object' ? undefined : txt(tit), 'título');
+  let cont = pick(P, ['contatos', 'contato', 'contacts', 'contact']);
+  if (cont === undefined) {
+    const c = ['telefone', 'phone', 'celular', 'whatsapp', 'email', 'endereco', 'address', 'cidade', 'city', 'localizacao', 'location', 'linkedin', 'site', 'instagram']
+      .map(k => pick(P, [k])).filter(v => v !== undefined).map(txt).filter(Boolean);
+    if (c.length) cont = c;
+  }
+  set('contatos', lista(cont), 'contatos');
+  const obj = pick(d, ['objetivo', 'objective', 'resumo', 'summary', 'sobre', 'about']);
+  set('objetivo', obj === undefined ? undefined : txt(obj), 'objetivo');
+  const ex = pick(d, ['experiencias', 'experiencia', 'experiences', 'experience', 'work', 'empregos', 'historico']);
+  if (ex !== undefined) {
+    if (!Array.isArray(ex)) throw new Error('"experiencias" precisa ser uma lista [ … ].');
+    set('exps', ex.map(x => typeof x !== 'object' || !x ? { cargo: txt(x), empresa: '', periodo: '', desc: '' } : {
+      cargo: txt(pick(x, ['cargo', 'funcao', 'position', 'role', 'title', 'titulo'])),
+      empresa: txt(pick(x, ['empresa', 'company', 'organizacao', 'organization', 'local', 'name', 'nome'])),
+      periodo: periodo(x),
+      desc: txt(pick(x, ['atividades', 'descricao', 'desc', 'description', 'responsabilidades', 'highlights', 'tarefas', 'resumo', 'summary']))
+    }), 'experiências');
+  }
+  const fo = pick(d, ['formacao', 'formacoes', 'education', 'educacao', 'cursos', 'courses', 'formacaoecursos']);
+  if (fo !== undefined) {
+    if (!Array.isArray(fo)) throw new Error('"formacao" precisa ser uma lista [ … ].');
+    set('forms', fo.map(x => typeof x !== 'object' || !x ? { titulo: txt(x), detalhe: '' } : (() => {
+      const t = txt(pick(x, ['titulo', 'title', 'curso', 'course', 'studytype', 'grau', 'area', 'nome', 'name']));
+      let det = txt(pick(x, ['detalhe', 'detalhes', 'detail', 'descricao', 'description']));
+      if (!det) {
+        const inst = txt(pick(x, ['instituicao', 'institution', 'escola', 'school'])), ano = periodo(x) || txt(pick(x, ['conclusao', 'ano', 'year'])), ch = txt(pick(x, ['cargahoraria', 'horas', 'hours']));
+        det = [inst, ch, ano].filter(Boolean).join(', ');
+      }
+      return { titulo: t, detalhe: det };
+    })()), 'formação');
+  }
+  set('comps', lista(pick(d, ['competencias', 'competences', 'softskills', 'qualidades'])), 'competências');
+  set('habs', lista(pick(d, ['habilidades', 'skills', 'hardskills', 'ferramentas', 'idiomas', 'languages'])), 'habilidades');
+  const link = pick(d, ['link', 'url', 'siteurl', 'qrcode', 'qr']);
+  set('url', link === undefined ? undefined : txt(link), 'link');
+  if (!usados.length) throw new Error('Nenhum campo reconhecido. Use "Ver modelo" para ver os nomes esperados.');
+  return { dados: out, usados };
+}
+
 class Component extends DCLogic {
   state = this.load();
   load() {
@@ -360,7 +461,7 @@ class Component extends DCLogic {
   }
   dados() {
     const save = Object.assign({}, this.state);
-    ['fit', 'printMode', 'route', 'unlocked', 'senha', 'erro', 'view', 'salvo', 'checando', 'enviando'].forEach(k => delete save[k]);
+    ['fit', 'printMode', 'route', 'unlocked', 'senha', 'erro', 'view', 'salvo', 'checando', 'enviando', 'jsonTexto', 'jsonMsg', 'jsonErro'].forEach(k => delete save[k]);
     return save;
   }
   salvar() {
@@ -575,6 +676,21 @@ class Component extends DCLogic {
       printMode: s.printMode === 'view' && view !== 'folha' ? 'view' : 'folha',
       imprimirVisual: () => this.setState({ printMode: 'view' }, () => setTimeout(() => window.print(), 80)),
       imprimirFolha: () => this.setState({ printMode: 'folha' }, () => setTimeout(() => window.print(), 80)),
+      jsonTexto: s.jsonTexto || '', onJson: e => this.setState({ jsonTexto: e.target.value, jsonMsg: '', jsonErro: false }),
+      jsonMsg: s.jsonMsg || ' ', jsonCor: s.jsonErro ? '#e8a07a' : '#b9b0a0',
+      aplicarJson: () => {
+        let r; try { r = normalizarJson(s.jsonTexto); } catch (e) { return this.setState({ jsonMsg: e.message, jsonErro: true }); }
+        if (!window.confirm('Substituir ' + r.usados.join(', ') + ' pelos dados do JSON?')) return;
+        this.setState(Object.assign({}, r.dados, { fit: 0, jsonMsg: '✓ Aplicado: ' + r.usados.join(', ') + '.', jsonErro: false }));
+      },
+      modeloJson: () => this.setState({ jsonTexto: JSON.stringify(JSON_MODELO, null, 2), jsonMsg: 'Modelo carregado. Troque pelos dados reais e clique em Aplicar.', jsonErro: false }),
+      copiarJson: () => {
+        const d = this.dados(), t = JSON.stringify({ nome: d.nome, titulo: d.titulo, contatos: d.contatos, objetivo: d.objetivo,
+          experiencias: d.exps.map(x => ({ cargo: x.cargo, empresa: x.empresa, periodo: x.periodo, atividades: x.desc })),
+          formacao: d.forms, competencias: d.comps, habilidades: d.habs, link: d.url }, null, 2);
+        this.setState({ jsonTexto: t, jsonMsg: 'Dados atuais no campo acima.', jsonErro: false });
+        try { navigator.clipboard.writeText(t).then(() => this.setState({ jsonMsg: '✓ Dados atuais copiados.' }), () => {}); } catch (e) {}
+      },
       restaurar: () => { if (window.confirm('Apagar tudo e voltar ao texto de exemplo?')) this.setState(DEFAULTS()); }
     };
   }
