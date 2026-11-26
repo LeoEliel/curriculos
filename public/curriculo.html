@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Currículo</title>
+<meta name="description" content="Currículo">
+<link rel="icon" href="data:,">
+<script>window.__resources = {};</script>
+<script src="/vendor/react.production.min.js"></script>
+<script src="/vendor/react-dom.production.min.js"></script>
+<script src="/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="omelette-owns-print" content="true"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=JetBrains+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet"><script src="/vendor/qrcode.js"></script><style>body{margin:0;background:#0e0c0a}a{color:inherit}a:hover{opacity:.7}@page{size:A4;margin:12mm 14mm}@page bleed{size:A4;margin:0}@media print{body{background:#fff!important}[data-noprint]{display:none!important}[data-root]{display:block!important;min-height:0!important}[data-stage]{display:block!important;padding:0!important;background:#fff!important;overflow:visible!important;height:auto!important}[data-print=folha] [data-view]{display:none!important}[data-print=folha] [data-sheet]{position:static!important;max-height:273mm!important;overflow:hidden!important}[data-print=view] [data-sheet]{display:none!important}[data-sheet]{width:auto!important;min-height:0!important;padding:0!important;margin:0!important;box-shadow:none!important}[data-view]{page:bleed;margin:0!important;min-height:0!important}[data-view],[data-view] *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}[data-view] label{display:none!important}body:has([data-print=view] [data-view=noir]){background:#0e0c0a!important}body:has([data-print=view] [data-view=edit]){background:#f3efe8!important}body:has([data-print=view] [data-view]) [data-stage]{background:transparent!important}[data-keep]{break-inside:avoid}}</style></helmet>
+<div data-root data-print="{{ printMode }}" style="display:flex;min-height:100vh;font-family:'Hanken Grotesk',sans-serif">
+
+  <aside data-noprint style="display:{{ asideDisplay }};flex:none;width:360px;height:100vh;position:sticky;top:0;overflow-y:auto;box-sizing:border-box;background:#0e0c0a;color:#ece6da;border-right:1px solid #2e2a25;padding:24px 22px 60px">
+    <a href="/" style="display:inline-block;margin-bottom:14px;font:400 11px 'JetBrains Mono',monospace;letter-spacing:.16em;color:#b9b0a0;text-decoration:none">← PÁGINA INICIAL</a>
+    <div style="font:italic 500 30px/1 'Cormorant Garamond',serif">Editor do currículo</div>
+    <p style="margin:8px 0 18px;font-size:13px;line-height:1.5;color:#b9b0a0">Tudo que você digitar aparece na folha ao lado e é salvo no site automaticamente.</p>
+    <p style="margin:-10px 0 18px;font:400 11px 'JetBrains Mono',monospace;letter-spacing:.12em;color:{{ salvoCor }}">{{ salvoStatus }}</p>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px"><button onClick="{{ imprimirVisual }}" style="cursor:pointer;background:#ece6da;color:#0e0c0a;border:0;border-radius:4px;padding:11px 12px;font:600 13px 'Hanken Grotesk',sans-serif" style-hover="background:#fff">Imprimir / PDF deste visual</button><button onClick="{{ imprimirFolha }}" style="cursor:pointer;background:transparent;color:#ece6da;border:1px solid #4a433a;border-radius:4px;padding:11px 12px;font:600 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">Imprimir Folha A4 P&amp;B</button></div>
+      <button onClick="{{ restaurar }}" style="align-self:flex-start;cursor:pointer;background:transparent;color:#ece6da;border:1px solid #4a433a;border-radius:4px;padding:11px 12px;font:500 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">Restaurar</button>
+    </div>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">FOLHA DE 1 PÁGINA + QR CODE</div>
+    <input value="{{ url }}" onChange="{{ onUrl }}" placeholder="{{ urlPadrao }}" style="width:100%;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:#b9b0a0">{{ fitStatus }}</p>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">VISUAL NA TELA</div>
+    <div style="display:flex;border:1px solid #4a433a;border-radius:4px;overflow:hidden">
+      <button onClick="{{ setNoir }}" style="flex:1;cursor:pointer;border:0;padding:10px 6px;font:600 13px 'Hanken Grotesk',sans-serif;background:{{ bNoirBg }};color:{{ bNoirFg }}">Noir</button>
+      <button onClick="{{ setEdit }}" style="flex:1;cursor:pointer;border:0;border-left:1px solid #4a433a;padding:10px 6px;font:600 13px 'Hanken Grotesk',sans-serif;background:{{ bEditBg }};color:{{ bEditFg }}">Editorial</button>
+      <button onClick="{{ setFolha }}" style="flex:1;cursor:pointer;border:0;border-left:1px solid #4a433a;padding:10px 6px;font:600 13px 'Hanken Grotesk',sans-serif;background:{{ bFolhaBg }};color:{{ bFolhaFg }}">Folha A4</button>
+    </div>
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:#b9b0a0">"Deste visual" imprime o Noir ou o Editorial com fundo e cores (ideal para PDF). "Folha A4 P&amp;B" imprime a versão branca, econômica em tinta.</p>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">FOTO</div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="flex:none;width:60px;height:80px;background:repeating-linear-gradient(135deg,#1a1714 0 6px,#231f1b 6px 12px);overflow:hidden">
+        <sc-if value="{{ hasFoto }}" hint-placeholder-val="{{ false }}"><div style="width:100%;height:100%;background-image:{{ fotoBg }};background-size:cover;background-position:center"></div></sc-if>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+        <label style="cursor:pointer;border:1px solid #4a433a;border-radius:4px;padding:9px 12px;font-size:13px;font-weight:500" style-hover="border-color:#ece6da"><input type="file" accept="image/*" onChange="{{ onFoto }}" style="display:none">Enviar foto do computador</label>
+        <sc-if value="{{ hasFoto }}" hint-placeholder-val="{{ false }}"><button onClick="{{ removerFoto }}" style="cursor:pointer;background:none;border:0;padding:0;color:#b9b0a0;font:400 13px 'Hanken Grotesk',sans-serif;text-decoration:underline">Remover foto</button></sc-if>
+      </div>
+    </div>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">IDENTIDADE</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input value="{{ nome }}" onChange="{{ onNome }}" placeholder="Nome completo" style="width:100%;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
+      <input value="{{ titulo }}" onChange="{{ onTitulo }}" placeholder="Área de atuação (linha acima do nome)" style="width:100%;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
+    </div>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">CONTATOS</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ contatos }}" as="c" hint-placeholder-count="3">
+        <div style="display:flex;gap:6px">
+          <span draggable="true" data-drag-list="contatos" data-drag-i="{{ c.i }}" title="Arraste para reordenar" style="flex:none;width:16px;display:flex;align-items:center;justify-content:center;cursor:grab;color:#b9b0a0;font-size:14px;user-select:none">⋮⋮</span><input value="{{ c.v }}" onChange="{{ c.onChange }}" placeholder="Telefone, e-mail, endereço, rede social…" style="flex:1;min-width:0;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
+          <button onClick="{{ c.remove }}" title="Remover" style="flex:none;width:36px;cursor:pointer;background:transparent;color:#b9b0a0;border:1px solid #3a342d;border-radius:4px;font-size:16px" style-hover="color:#fff;border-color:#ece6da">×</button>
+        </div>
+      </sc-for>
+      <button onClick="{{ addContato }}" style="cursor:pointer;background:transparent;color:#ece6da;border:1px dashed #4a433a;border-radius:4px;padding:9px;font:500 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">+ Adicionar contato</button>
+    </div>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">OBJETIVO</div>
+    <textarea value="{{ objetivo }}" onChange="{{ onObjetivo }}" rows="6" style="width:100%;box-sizing:border-box;resize:vertical;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px/1.5 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da"></textarea>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">EXPERIÊNCIAS</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <button onClick="{{ addExp }}" style="cursor:pointer;background:transparent;color:#ece6da;border:1px dashed #4a433a;border-radius:4px;padding:9px;font:500 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">+ Adicionar experiência (entra no topo)</button>
+      <sc-for list="{{ exps }}" as="x" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid #2e2a25;border-radius:6px">
+          <span draggable="true" data-drag-list="exps" data-drag-i="{{ x.i }}" style="align-self:flex-start;cursor:grab;color:#b9b0a0;font:400 11px 'JetBrains Mono',monospace;letter-spacing:.1em;user-select:none;padding:2px 0 4px">⋮⋮ ARRASTE PARA REORDENAR</span><input value="{{ x.cargo }}" onChange="{{ x.onCargo }}" placeholder="Cargo" style="width:100%;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
+          <input value="{{ x.empresa }}" onChange="{{ x.onEmpresa }}" placeholder="Empresa" style="width:100%;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
+          <input value="{{ x.periodo }}" onChange="{{ x.onPeriodo }}" placeholder="Período (ex.: Mar/2023 – Atual)" style="width:100%;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
+          <textarea value="{{ x.desc }}" onChange="{{ x.onDesc }}" rows="5" placeholder="Atividades" style="width:100%;box-sizing:border-box;resize:vertical;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px/1.5 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da"></textarea>
+          <div style="display:flex;gap:14px;justify-content:flex-end">
+            <button onClick="{{ x.up }}" style="cursor:pointer;background:none;border:0;padding:2px 0;color:#b9b0a0;font:400 13px 'Hanken Grotesk',sans-serif;text-decoration:underline">Subir</button>
+            <button onClick="{{ x.remove }}" style="cursor:pointer;background:none;border:0;padding:2px 0;color:#b9b0a0;font:400 13px 'Hanken Grotesk',sans-serif;text-decoration:underline">Remover</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">FORMAÇÃO E CURSOS</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ forms }}" as="f" hint-placeholder-count="2">
+        <div style="display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid #2e2a25;border-radius:6px">
+          <span draggable="true" data-drag-list="forms" data-drag-i="{{ f.i }}" style="align-self:flex-start;cursor:grab;color:#b9b0a0;font:400 11px 'JetBrains Mono',monospace;letter-spacing:.1em;user-select:none;padding:2px 0 4px">⋮⋮ ARRASTE PARA REORDENAR</span><input value="{{ f.titulo }}" onChange="{{ f.onTitulo }}" placeholder="Curso / formação" style="width:100%;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
+          <textarea value="{{ f.detalhe }}" onChange="{{ f.onDetalhe }}" rows="2" placeholder="Instituição, carga horária, conclusão" style="width:100%;box-sizing:border-box;resize:vertical;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 14px/1.5 'Hanken Grotesk',sans-serif;padding:9px 10px;border-radius:4px;outline:none" style-focus="border-color:#ece6da"></textarea>
+          <button onClick="{{ f.remove }}" style="align-self:flex-end;cursor:pointer;background:none;border:0;padding:2px 0;color:#b9b0a0;font:400 13px 'Hanken Grotesk',sans-serif;text-decoration:underline">Remover</button>
+        </div>
+      </sc-for>
+      <button onClick="{{ addForm }}" style="cursor:pointer;background:transparent;color:#ece6da;border:1px dashed #4a433a;border-radius:4px;padding:9px;font:500 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">+ Adicionar formação ou curso</button>
+    </div>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">COMPETÊNCIAS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <sc-for list="{{ comps }}" as="c" hint-placeholder-count="10">
+        <div style="display:flex;min-width:0">
+          <span draggable="true" data-drag-list="comps" data-drag-i="{{ c.i }}" title="Arraste para reordenar" style="flex:none;width:16px;display:flex;align-items:center;justify-content:center;cursor:grab;color:#b9b0a0;font-size:13px;user-select:none">⋮⋮</span><input value="{{ c.v }}" onChange="{{ c.onChange }}" style="flex:1;min-width:0;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;border-right:0;color:#ece6da;font:400 13px 'Hanken Grotesk',sans-serif;padding:8px;border-radius:4px 0 0 4px;outline:none">
+          <button onClick="{{ c.remove }}" title="Remover" style="flex:none;width:28px;cursor:pointer;background:#1a1714;color:#b9b0a0;border:1px solid #3a342d;border-radius:0 4px 4px 0;font-size:14px" style-hover="color:#fff">×</button>
+        </div>
+      </sc-for>
+    </div>
+    <button onClick="{{ addComp }}" style="width:100%;margin-top:8px;cursor:pointer;background:transparent;color:#ece6da;border:1px dashed #4a433a;border-radius:4px;padding:9px;font:500 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">+ Adicionar competência</button>
+
+    <div style="margin:28px 0 10px;font:500 11px 'JetBrains Mono',monospace;letter-spacing:.2em;color:oklch(0.8 0.09 75)">HABILIDADES (OPCIONAL)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <sc-for list="{{ habs }}" as="c" hint-placeholder-count="0">
+        <div style="display:flex;min-width:0">
+          <span draggable="true" data-drag-list="habs" data-drag-i="{{ c.i }}" title="Arraste para reordenar" style="flex:none;width:16px;display:flex;align-items:center;justify-content:center;cursor:grab;color:#b9b0a0;font-size:13px;user-select:none">⋮⋮</span><input value="{{ c.v }}" onChange="{{ c.onChange }}" placeholder="Ex.: Pacote Office" style="flex:1;min-width:0;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;border-right:0;color:#ece6da;font:400 13px 'Hanken Grotesk',sans-serif;padding:8px;border-radius:4px 0 0 4px;outline:none">
+          <button onClick="{{ c.remove }}" title="Remover" style="flex:none;width:28px;cursor:pointer;background:#1a1714;color:#b9b0a0;border:1px solid #3a342d;border-radius:0 4px 4px 0;font-size:14px" style-hover="color:#fff">×</button>
+        </div>
+      </sc-for>
+    </div>
+    <button onClick="{{ addHab }}" style="width:100%;margin-top:8px;cursor:pointer;background:transparent;color:#ece6da;border:1px dashed #4a433a;border-radius:4px;padding:9px;font:500 13px 'Hanken Grotesk',sans-serif" style-hover="border-color:#ece6da">+ Adicionar habilidade (idiomas, informática…)</button>
+  </aside>
+
+  <main data-stage style="flex:1;min-width:0;height:100vh;overflow:auto;box-sizing:border-box;background:#1b1815;padding:32px;container-type:inline-size">
+
+    <sc-if value="{{ isPublic }}" hint-placeholder-val="{{ false }}">
+      <nav data-noprint style="position:fixed;z-index:20;top:14px;right:14px;max-width:calc(100vw - 28px);display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:5px;background:#0e0c0a;border:1px solid #4a433a;border-radius:6px;font:600 12px 'Hanken Grotesk',sans-serif">
+        <a href="/" style="padding:8px 10px;color:#ece6da;text-decoration:none">← Início</a>
+        <button onClick="{{ setNoir }}" style="cursor:pointer;border:0;border-radius:3px;padding:8px 10px;font:inherit;background:{{ bNoirBg }};color:{{ bNoirFg }}">Noir</button>
+        <button onClick="{{ setEdit }}" style="cursor:pointer;border:0;border-radius:3px;padding:8px 10px;font:inherit;background:{{ bEditBg }};color:{{ bEditFg }}">Editorial</button>
+        <button onClick="{{ setFolha }}" style="cursor:pointer;border:0;border-radius:3px;padding:8px 10px;font:inherit;background:{{ bFolhaBg }};color:{{ bFolhaFg }}">Folha A4</button>
+        <button onClick="{{ imprimirVisual }}" style="cursor:pointer;border:1px solid #4a433a;border-radius:3px;padding:7px 10px;font:inherit;background:transparent;color:#ece6da">Imprimir</button>
+      </nav>
+    </sc-if>
+
+    <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+      <div data-noprint style="position:fixed;z-index:30;inset:0;background:#0e0c0a;color:#ece6da;display:flex;align-items:center;justify-content:center;padding:24px">
+        <form onSubmit="{{ entrar }}" style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px">
+          <div style="font:400 11px 'JetBrains Mono',monospace;letter-spacing:.24em;color:oklch(0.8 0.09 75)">ACESSO RESTRITO</div>
+          <div style="font:italic 500 44px/1 'Cormorant Garamond',serif">Área de edição</div>
+          <p style="margin:0 0 6px;font-size:14px;line-height:1.5;color:#b9b0a0">{{ lockTexto }}</p>
+          <input type="password" value="{{ senha }}" onChange="{{ onSenha }}" placeholder="Senha" style="width:100%;box-sizing:border-box;background:#1a1714;border:1px solid #3a342d;color:#ece6da;font:400 16px 'Hanken Grotesk',sans-serif;padding:12px;border-radius:4px;outline:none" style-focus="border-color:#ece6da">
+          <button type="submit" style="cursor:pointer;background:#ece6da;color:#0e0c0a;border:0;border-radius:4px;padding:12px;font:600 14px 'Hanken Grotesk',sans-serif" style-hover="background:#fff">{{ lockBotao }}</button>
+          <div style="min-height:20px;font-size:13px;color:oklch(0.8 0.09 75)">{{ erro }}</div>
+          <a href="/" style="font:400 11px 'JetBrains Mono',monospace;letter-spacing:.16em;color:#b9b0a0;text-decoration:none">← VOLTAR AO INÍCIO</a>
+        </form>
+      </div>
+    </sc-if>
+
+
+    <sc-if value="{{ isNoir }}" hint-placeholder-val="{{ true }}">
+    <div data-view="noir" data-screen-label="Tela Noir" style="margin:-32px;min-height:100vh;background:#0e0c0a;color:#ece6da;font-family:'Cormorant Garamond',serif">
+      <div style="position:relative;aspect-ratio:16/9;max-height:92vh;width:100%;background:#191613;overflow:hidden">
+        <sc-if value="{{ hasFoto }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background-image:{{ fotoBg }};background-size:cover;background-position:center 25%;filter:{{ fotoFilter }}"></div></sc-if>
+        <sc-if value="{{ semFoto }}" hint-placeholder-val="{{ true }}"><label style="position:absolute;inset:0;cursor:pointer;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,#191613 0 10px,#211d19 10px 20px);font:400 12px 'JetBrains Mono',monospace;letter-spacing:.14em;color:#b9b0a0"><input type="file" accept="image/*" onChange="{{ onFoto }}" style="display:none">CLIQUE PARA ENVIAR A FOTO</label></sc-if>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,12,10,0) 40%,rgba(14,12,10,.94) 100%);pointer-events:none"></div>
+        <div style="position:absolute;left:0;right:0;top:0;height:7%;min-height:34px;background:#000;display:flex;align-items:center;justify-content:space-between;padding:0 5cqw;font:400 11px 'JetBrains Mono',monospace;letter-spacing:.24em;color:#b9b0a0;pointer-events:none"><span>CURRICULUM VITAE</span></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;height:7%;min-height:34px;background:#000;pointer-events:none"></div>
+        <div style="position:absolute;left:5cqw;right:5cqw;bottom:13%;pointer-events:none">
+          <div style="font:400 clamp(10px,1.2cqw,13px) 'JetBrains Mono',monospace;letter-spacing:.3em;color:oklch(0.8 0.09 75);margin-bottom:1.4cqw">{{ tituloCaps }}</div>
+          <h1 style="margin:0;font-weight:400;font-style:italic;font-size:clamp(44px,10.5cqw,132px);line-height:.9;letter-spacing:-.02em;text-wrap:balance">{{ nome }}</h1>
+        </div>
+      </div>
+      <div style="max-width:920px;margin:0 auto;padding:clamp(40px,7cqw,84px) clamp(24px,5cqw,56px) 0">
+        <div style="font:400 11px 'JetBrains Mono',monospace;letter-spacing:.24em;color:oklch(0.8 0.09 75);margin-bottom:18px">01 — OBJETIVO</div>
+        <p style="margin:0 0 clamp(40px,6cqw,72px);font-size:clamp(22px,3.3cqw,34px);line-height:1.28;font-style:italic;white-space:pre-line;text-wrap:pretty">{{ objetivo }}</p>
+
+        <div style="font:400 11px 'JetBrains Mono',monospace;letter-spacing:.24em;color:oklch(0.8 0.09 75);padding-top:28px;border-top:1px solid #2e2a25">02 — EXPERIÊNCIA</div>
+        <div style="padding:26px 0 56px;display:flex;flex-direction:column;gap:38px">
+          <sc-for list="{{ exps }}" as="x" hint-placeholder-count="3">
+            <div>
+              <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 24px"><h3 style="margin:0;font-weight:500;font-size:clamp(24px,3.2cqw,32px);line-height:1.1">{{ x.cargo }}<sc-if value="{{ x.hasEmpresa }}" hint-placeholder-val="{{ true }}"><span style="font-style:italic;color:#b9b0a0"> — {{ x.empresa }}</span></sc-if></h3><span style="font:400 12px 'JetBrains Mono',monospace;letter-spacing:.12em;color:#b9b0a0">{{ x.periodoCaps }}</span></div>
+              <p style="margin:12px 0 0;font:400 15.5px/1.7 'Hanken Grotesk',sans-serif;color:#cfc8ba;white-space:pre-line;text-wrap:pretty">{{ x.desc }}</p>
+            </div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ hasForms }}" hint-placeholder-val="{{ true }}">
+          <div style="font:400 11px 'JetBrains Mono',monospace;letter-spacing:.24em;color:oklch(0.8 0.09 75);padding-top:28px;border-top:1px solid #2e2a25">03 — FORMAÇÃO E CURSOS</div>
+          <div style="padding:22px 0 56px;display:flex;flex-direction:column;gap:16px;font-size:clamp(19px,2.4cqw,24px);line-height:1.35">
+            <sc-for list="{{ forms }}" as="f" hint-placeholder-count="2"><div>{{ f.titulo }}<sc-if value="{{ f.hasDetalhe }}" hint-placeholder-val="{{ true }}"><span style="font-style:italic;color:#b9b0a0"> — {{ f.detalhe }}</span></sc-if></div></sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <sc-if value="{{ hasComps }}" hint-placeholder-val="{{ true }}">
+        <div style="max-width:920px;margin:0 auto;padding:0 clamp(24px,5cqw,56px)"><div style="border-top:1px solid #2e2a25;padding:60px 0 64px;text-align:center">
+          <div style="font:400 11px 'JetBrains Mono',monospace;letter-spacing:.3em;color:oklch(0.8 0.09 75);margin-bottom:26px">COMPETÊNCIAS</div>
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px 32px;font-size:clamp(24px,3.8cqw,38px);font-style:italic;line-height:1.25">
+            <sc-for list="{{ compsVis }}" as="c" hint-placeholder-count="10"><span>{{ c.v }}</span></sc-for>
+          </div>
+        </div></div>
+      </sc-if>
+      <sc-if value="{{ hasHabs }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:920px;margin:0 auto;padding:0 clamp(24px,5cqw,56px)"><div style="border-top:1px solid #2e2a25;padding:60px 0 64px;text-align:center">
+          <div style="font:400 11px 'JetBrains Mono',monospace;letter-spacing:.3em;color:oklch(0.8 0.09 75);margin-bottom:26px">HABILIDADES</div>
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px 32px;font-size:clamp(22px,3cqw,30px);font-style:italic;line-height:1.25">
+            <sc-for list="{{ habsVis }}" as="c" hint-placeholder-count="0"><span>{{ c.v }}</span></sc-for>
+          </div>
+        </div></div>
+      </sc-if>
+      <div style="background:#000;padding:24px clamp(24px,5cqw,56px);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 28px;font:400 12px 'JetBrains Mono',monospace;letter-spacing:.14em;color:#b9b0a0">
+        <sc-for list="{{ contatosVis }}" as="c" hint-placeholder-count="3"><span>{{ c.v }}</span></sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isEdit }}" hint-placeholder-val="{{ false }}">
+    <div data-view="edit" data-screen-label="Tela Editorial" style="margin:-32px;min-height:100vh;box-sizing:border-box;background:#f3efe8;color:#1c1a17;font-family:'Hanken Grotesk',sans-serif;padding:clamp(24px,4cqw,44px) clamp(24px,5cqw,60px) 60px">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding-bottom:16px;border-bottom:1px solid #1c1a17"><span>Currículo</span><span>{{ titulo }}</span></div>
+      <h1 style="margin:clamp(18px,3cqw,30px) 0 clamp(24px,4cqw,40px);font:400 clamp(54px,14.5cqw,176px)/.86 'Bodoni Moda',serif;letter-spacing:-.035em">{{ nomeA }} <span style="font-style:italic;color:oklch(0.5 0.1 35)">{{ nomeB }}</span></h1>
+      <div style="display:flex;flex-wrap:wrap;gap:40px clamp(32px,5cqw,56px);align-items:flex-start">
+        <div style="flex:1 1 260px;max-width:400px;display:flex;flex-direction:column;gap:14px">
+          <div style="position:relative;aspect-ratio:3/4;background:#e4ded3;overflow:hidden">
+            <sc-if value="{{ hasFoto }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background-image:{{ fotoBg }};background-size:cover;background-position:center;filter:{{ fotoFilter }}"></div></sc-if>
+            <sc-if value="{{ semFoto }}" hint-placeholder-val="{{ true }}"><label style="position:absolute;inset:0;cursor:pointer;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,#e9e3d8 0 10px,#dfd8cb 10px 20px);font:400 12px 'JetBrains Mono',monospace;letter-spacing:.12em;color:#4a443c"><input type="file" accept="image/*" onChange="{{ onFoto }}" style="display:none">CLIQUE PARA ENVIAR A FOTO</label></sc-if>
+          </div>
+          <div style="margin-top:14px;padding-top:18px;border-top:1px solid #1c1a17;display:flex;flex-direction:column;gap:8px;font-size:15px">
+            <div style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:oklch(0.5 0.1 35);font-weight:600;margin-bottom:4px">Contato</div>
+            <sc-for list="{{ contatosVis }}" as="c" hint-placeholder-count="3"><span>{{ c.v }}</span></sc-for>
+          </div>
+          <sc-if value="{{ hasComps }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:14px;padding-top:18px;border-top:1px solid #1c1a17">
+              <div style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:oklch(0.5 0.1 35);font-weight:600;margin-bottom:12px">Competências</div>
+              <div style="display:flex;flex-direction:column;gap:2px;font:italic 400 23px/1.3 'Bodoni Moda',serif"><sc-for list="{{ compsVis }}" as="c" hint-placeholder-count="10"><span>{{ c.v }}</span></sc-for></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasHabs }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:14px;padding-top:18px;border-top:1px solid #1c1a17">
+              <div style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:oklch(0.5 0.1 35);font-weight:600;margin-bottom:12px">Habilidades</div>
+              <div style="display:flex;flex-direction:column;gap:2px;font:italic 400 23px/1.3 'Bodoni Moda',serif"><sc-for list="{{ habsVis }}" as="c" hint-placeholder-count="0"><span>{{ c.v }}</span></sc-for></div>
+            </div>
+          </sc-if>
+        </div>
+        <div style="flex:2 1 400px;min-width:0">
+          <p style="margin:0 0 44px;font:400 clamp(21px,3cqw,30px)/1.3 'Bodoni Moda',serif;text-wrap:pretty"><span style="float:left;font-size:3.4em;line-height:.8;padding:.08em .12em 0 0;color:oklch(0.5 0.1 35)">{{ objIni }}</span>{{ objResto }}</p>
+          <div style="clear:both;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:oklch(0.5 0.1 35);font-weight:600;padding-bottom:12px;border-bottom:1px solid #1c1a17">Experiência</div>
+          <sc-for list="{{ exps }}" as="x" hint-placeholder-count="3">
+            <div style="padding:24px 0;border-bottom:1px solid #cfc7b9">
+              <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 20px"><h3 style="margin:0;font:500 30px/1.1 'Bodoni Moda',serif">{{ x.cargo }}</h3><span style="font-size:13px;letter-spacing:.08em;color:#5b554c">{{ x.periodo }}</span></div>
+              <div style="font:italic 400 17px 'Bodoni Moda',serif;color:#5b554c;margin:4px 0 14px">{{ x.empresa }}</div>
+              <ul style="margin:0;padding:0 0 0 18px;columns:2 220px;column-gap:32px;font-size:14.5px;line-height:1.5;color:#35312b">
+                <sc-for list="{{ x.itens }}" as="it" hint-placeholder-count="4"><li style="margin-bottom:6px;break-inside:avoid">{{ it.t }}</li></sc-for>
+              </ul>
+            </div>
+          </sc-for>
+          <sc-if value="{{ hasForms }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:36px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:oklch(0.5 0.1 35);font-weight:600;padding-bottom:12px;border-bottom:1px solid #1c1a17">Formação e cursos</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px 32px;padding-top:20px">
+              <sc-for list="{{ forms }}" as="f" hint-placeholder-count="2"><div><div style="font:500 22px/1.25 'Bodoni Moda',serif">{{ f.titulo }}</div><div style="font-size:14.5px;line-height:1.5;color:#35312b;margin-top:6px">{{ f.detalhe }}</div></div></sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <div data-sheet data-screen-label="Folha A4" style="position:{{ sheetPos }};left:{{ sheetLeft }};width:210mm;min-height:297mm;box-sizing:border-box;margin:0 auto;padding:12mm 14mm;background:#fff;color:#111;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+      <div style="display:flex;justify-content:space-between;border-top:3pt solid #111;padding-top:5pt;font:500 8pt 'JetBrains Mono',monospace;letter-spacing:.26em;color:#333"><span>CURRICULUM VITAE</span><span>{{ tituloCaps }}</span></div>
+
+      <header style="display:flex;gap:9mm;align-items:flex-end;margin-top:7mm">
+        <sc-if value="{{ fotoVisivel }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;width:36mm;border-top:2.5pt solid #111;border-bottom:2.5pt solid #111;padding:1.5mm 0"><div role="img" aria-label="Foto" style="width:36mm;height:46mm;background-image:{{ fotoBg }};background-size:cover;background-position:center;filter:{{ fotoFilter }};-webkit-print-color-adjust:exact;print-color-adjust:exact"></div></div>
+        </sc-if>
+        <sc-if value="{{ fotoVazia }}" hint-placeholder-val="{{ true }}">
+          <label data-noprint style="flex:none;cursor:pointer;width:36mm;height:46mm;display:flex;align-items:center;justify-content:center;text-align:center;background:repeating-linear-gradient(135deg,#f1f1f1 0 6px,#e6e6e6 6px 12px);font:400 8.5pt 'JetBrains Mono',monospace;color:#444"><input type="file" accept="image/*" onChange="{{ onFoto }}" style="display:none">clique para<br>enviar a foto</label>
+        </sc-if>
+        <div style="flex:1;min-width:0;padding-bottom:1mm">
+          <h1 style="margin:0;font:italic 500 46pt/.92 'Cormorant Garamond',serif;letter-spacing:-.015em;text-wrap:balance">{{ nome }}</h1>
+          <div style="display:flex;flex-wrap:wrap;gap:2pt 0;margin-top:6mm;padding-top:3mm;border-top:.75pt solid #111;font:400 9.5pt 'JetBrains Mono',monospace;color:#111">
+            <sc-for list="{{ contatosVis }}" as="c" hint-placeholder-count="3"><span style="white-space:nowrap"><sc-if value="{{ c.sep }}" hint-placeholder-val="{{ false }}"><span style="padding:0 7pt;color:#555">•</span></sc-if>{{ c.v }}</span></sc-for>
+          </div>
+        </div>
+      <sc-if value="{{ hasQr }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;width:27mm;align-self:flex-end;display:flex;flex-direction:column;gap:1.5mm">
+            <div role="img" aria-label="QR code da versão completa" style="width:27mm;height:27mm;background-image:{{ qrBg }};background-size:100% 100%;image-rendering:pixelated;-webkit-print-color-adjust:exact;print-color-adjust:exact"></div>
+            <div style="font:500 6.5pt/1.3 'JetBrains Mono',monospace;letter-spacing:.06em;color:#111;text-transform:uppercase">{{ qrNota }}</div>
+          </div>
+        </sc-if>
+      </header>
+
+      <section data-keep style="margin-top:8mm">
+        <div style="display:flex;align-items:center;gap:8pt;font:500 8.5pt 'JetBrains Mono',monospace;letter-spacing:.24em;color:#111"><span>OBJETIVO</span><span style="flex:1;border-top:.75pt solid #111"></span></div>
+        <p style="margin:3mm 0 0;font:italic 400 15pt/1.28 'Cormorant Garamond',serif;white-space:pre-line;text-wrap:pretty">{{ objetivo }}</p>
+      </section>
+
+      <section style="margin-top:6mm">
+        <div style="display:flex;align-items:center;gap:8pt;font:500 8.5pt 'JetBrains Mono',monospace;letter-spacing:.24em;color:#111"><span>EXPERIÊNCIA</span><span style="flex:1;border-top:.75pt solid #111"></span></div>
+        <sc-for list="{{ exps }}" as="x" hint-placeholder-count="3">
+          <div data-keep style="margin-top:3.5mm;display:{{ x.folhaDisplay }}">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12pt">
+              <h3 style="margin:0;font:600 16pt/1.1 'Cormorant Garamond',serif">{{ x.cargo }}<sc-if value="{{ x.hasEmpresa }}" hint-placeholder-val="{{ true }}"><span style="font-style:italic;font-weight:500;color:#333"> — {{ x.empresa }}</span></sc-if></h3>
+              <span style="flex:none;font:400 8.5pt 'JetBrains Mono',monospace;letter-spacing:.08em;color:#333;white-space:nowrap">{{ x.periodoCaps }}</span>
+            </div>
+            <sc-if value="{{ x.descNaFolha }}" hint-placeholder-val="{{ true }}"><p style="margin:1.5mm 0 0;font-family:'Hanken Grotesk',sans-serif;font-size:{{ corpo }};line-height:1.38;color:#1c1c1c;white-space:pre-line;text-wrap:pretty">{{ x.desc }}</p></sc-if>
+          </div>
+        </sc-for>
+      </section>
+
+      <sc-if value="{{ hasForms }}" hint-placeholder-val="{{ true }}">
+        <section data-keep style="margin-top:6mm">
+          <div style="display:flex;align-items:center;gap:8pt;font:500 8.5pt 'JetBrains Mono',monospace;letter-spacing:.24em;color:#111"><span>FORMAÇÃO E CURSOS</span><span style="flex:1;border-top:.75pt solid #111"></span></div>
+          <sc-for list="{{ forms }}" as="f" hint-placeholder-count="2">
+            <p style="margin:2.5mm 0 0;font-family:'Hanken Grotesk',sans-serif;font-size:{{ corpo }};line-height:1.38;color:#1c1c1c;text-wrap:pretty"><span style="font:600 14pt/1.1 'Cormorant Garamond',serif;color:#111">{{ f.titulo }}</span><sc-if value="{{ f.hasDetalhe }}" hint-placeholder-val="{{ true }}"> — {{ f.detalhe }}</sc-if></p>
+          </sc-for>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ hasComps }}" hint-placeholder-val="{{ true }}">
+        <section data-keep style="margin-top:6mm">
+          <div style="display:flex;align-items:center;gap:8pt;font:500 8.5pt 'JetBrains Mono',monospace;letter-spacing:.24em;color:#111"><span>COMPETÊNCIAS</span><span style="flex:1;border-top:.75pt solid #111"></span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:1pt 0;margin-top:2.5mm;font:italic 500 14pt/1.3 'Cormorant Garamond',serif">
+            <sc-for list="{{ compsVis }}" as="c" hint-placeholder-count="10"><span style="white-space:nowrap"><sc-if value="{{ c.sep }}" hint-placeholder-val="{{ false }}"><span style="padding:0 7pt;font-style:normal;color:#555">•</span></sc-if>{{ c.v }}</span></sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ hasHabs }}" hint-placeholder-val="{{ false }}">
+        <section data-keep style="margin-top:6mm">
+          <div style="display:flex;align-items:center;gap:8pt;font:500 8.5pt 'JetBrains Mono',monospace;letter-spacing:.24em;color:#111"><span>HABILIDADES</span><span style="flex:1;border-top:.75pt solid #111"></span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:1pt 0;margin-top:2.5mm;font:italic 500 14pt/1.3 'Cormorant Garamond',serif">
+            <sc-for list="{{ habsVis }}" as="c" hint-placeholder-count="0"><span style="white-space:nowrap"><sc-if value="{{ c.sep }}" hint-placeholder-val="{{ false }}"><span style="padding:0 7pt;font-style:normal;color:#555">•</span></sc-if>{{ c.v }}</span></sc-for>
+          </div>
+        </section>
+      </sc-if>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;fotoPB&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Foto&quot;},&quot;mostrarFoto&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Foto&quot;},&quot;tamanhoTexto&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:12,&quot;min&quot;:10,&quot;max&quot;:13,&quot;step&quot;:0.5,&quot;unit&quot;:&quot;pt&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Texto&quot;}}">
+const KEY = 'curriculo-noir-v1';
+const DEFAULTS = () => ({
+  foto: '',
+  nome: 'Nome Sobrenome',
+  titulo: 'Hospitalidade & Atendimento',
+  contatos: ['(69) 00000-0000', 'email@exemplo.com', '[Bairro] • [Cidade] – RO'],
+  objetivo: 'Busco uma oportunidade profissional que me permita contribuir com responsabilidade, dedicação e vontade de aprender. Tenho facilidade para lidar com pessoas, aprender novas atividades e trabalhar em equipe, buscando sempre evolução, qualidade e bons resultados.',
+  exps: [
+    { cargo: 'Recepcionista', empresa: '[Hotel]', periodo: '[mês/ano] – Atual', desc: 'Atendimento presencial e telefônico aos hóspedes; realização de check-in e check-out; conferência e atualização de reservas; cadastro e organização de informações dos hóspedes; orientações sobre serviços e funcionamento do [Hotel]; atendimento e encaminhamento de solicitações; apoio na resolução de dúvidas e ocorrências; comunicação com os demais setores para garantir agilidade no atendimento; recebimento e conferência de pagamentos; organização de documentos e rotinas administrativas da recepção.' },
+    { cargo: '[Cargo]', empresa: '[Hotel]', periodo: '[mês/ano] – [mês/ano]', desc: 'Apoio às rotinas de hotelaria e organização dos ambientes; atendimento e suporte às demandas dos hóspedes; auxílio na preparação e organização de áreas do hotel; colaboração com diferentes setores e cumprimento dos procedimentos internos, mantendo atenção à limpeza, organização e qualidade do serviço.' },
+    { cargo: 'Repositora', empresa: '[Empresa]', periodo: '[mês/ano] – [mês/ano]', desc: 'Reposição e organização de mercadorias; conferência de produtos e preços; organização das prateleiras e do estoque; apoio na manutenção da área de vendas e atendimento aos clientes quando necessário.' }
+  ],
+  forms: [
+    { titulo: '[Ensino / Curso]', detalhe: '[Instituição] (conclusão em [ano]).' },
+    { titulo: 'Curso de Frentista', detalhe: '[Instituição], 20 horas; conteúdos: NR20, NR09 e Benzeno ([data] a [data]).' }
+  ],
+  comps: ['Responsabilidade', 'Persistência', 'Resiliência', 'Criatividade', 'Boa comunicação', 'Organização', 'Trabalho em equipe', 'Proatividade', 'Facilidade para aprender', 'Autonomia'],
+  habs: [], url: '', fit: 0
+});
+
+class Component extends DCLogic {
+  state = this.load();
+  load() {
+    const s = window.__CURRICULO__;
+    if (s && typeof s === 'object' && s.nome !== undefined) return Object.assign(DEFAULTS(), s);
+    return DEFAULTS();
+  }
+  isEditRoute() {
+    let h = ''; try { h = decodeURIComponent(location.hash.slice(1)).toLowerCase(); } catch (e) {}
+    return location.pathname.replace(/\/+$/, '') === '/editar' || h === 'editar';
+  }
+  dados() {
+    const save = Object.assign({}, this.state);
+    ['fit', 'printMode', 'route', 'unlocked', 'senha', 'erro', 'view', 'salvo', 'checando', 'enviando'].forEach(k => delete save[k]);
+    return save;
+  }
+  salvar() {
+    clearTimeout(this._saveT);
+    this._saveT = setTimeout(() => {
+      const body = JSON.stringify(this.dados());
+      if (body === this._lastSaved) return;
+      this.setState({ salvo: 'salvando' });
+      fetch('/api/curriculo', { method: 'PUT', headers: { 'content-type': 'application/json' }, body, credentials: 'same-origin' })
+        .then(r => {
+          if (r.status === 401) { this.setState({ unlocked: false, salvo: 'erro', erro: 'Sessão expirada. Entre de novo.' }); return; }
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          this._lastSaved = body; this.setState({ salvo: 'ok' });
+        })
+        .catch(() => this.setState({ salvo: 'erro' }));
+    }, 700);
+  }
+  componentDidUpdate() {
+    const save = this.dados();
+    if (this.state.route === 'editar' && this.state.unlocked) {
+      const body = JSON.stringify(save);
+      if (this._lastSaved === undefined) this._lastSaved = body;
+      else if (body !== this._lastSaved && body !== this._pending) { this._pending = body; this.salvar(); }
+    }
+    save.foto = save.foto.length;
+    const sig = JSON.stringify([save, this.props.tamanhoTexto, this.props.mostrarFoto, !!window.qrcode]);
+    if (sig !== this._sig) { this._sig = sig; if (this.state.fit) { this.setState({ fit: 0 }); return; } }
+    this.measure();
+  }
+  componentDidMount() {
+    this._hash = () => {
+      let h = ''; try { h = decodeURIComponent(location.hash.slice(1)).toLowerCase(); } catch (e) {}
+      const map = { noir: 'noir', editorial: 'edit', folha: 'folha' };
+      if (this.isEditRoute()) {
+        if (this.state.route !== 'editar') {
+          this.setState(map[h] ? { route: 'editar', view: map[h], checando: true } : { route: 'editar', checando: true });
+          fetch('/api/sessao', { credentials: 'same-origin' }).then(r => r.json()).then(j => {
+            this._lastSaved = undefined;
+            this.setState({ unlocked: !!j.ok, checando: false, erro: j.configurado === false ? 'Senha não configurada no servidor.' : '' });
+          }).catch(() => this.setState({ checando: false, erro: 'Sem conexão com o servidor.' }));
+        } else if (map[h]) this.setState({ view: map[h] });
+      }
+      else this.setState(map[h] ? { route: 'public', view: map[h] } : { route: 'public' });
+    };
+    this._hash(); window.addEventListener('hashchange', this._hash);
+    const redo = () => { this._sig = null; this.forceUpdate(); };
+    redo(); setTimeout(redo, 1500);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(redo);
+    this._unload = e => { if (this.state.route === 'editar' && this.state.unlocked && this._lastSaved !== undefined && JSON.stringify(this.dados()) !== this._lastSaved) { e.preventDefault(); e.returnValue = ''; } };
+    window.addEventListener('beforeunload', this._unload);
+    const el = t => t && t.nodeType === 1 ? t : t && t.parentElement;
+    this._ds = e => {
+      const h = el(e.target) && el(e.target).closest('[data-drag-list]'); if (!h) return;
+      this._drag = { list: h.dataset.dragList, i: +h.dataset.dragI };
+      e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', '');
+      if (h.parentElement) e.dataTransfer.setDragImage(h.parentElement, 12, 12);
+    };
+    this._dov = e => { if (this._drag && this.findHandle(el(e.target), this._drag.list)) e.preventDefault(); };
+    this._dd = e => {
+      const d = this._drag; this._drag = null; if (!d) return;
+      const h = this.findHandle(el(e.target), d.list); if (!h) return;
+      e.preventDefault();
+      const to = +h.dataset.dragI; if (to === d.i) return;
+      this.setState(s => { const a = s[d.list].slice(); const m = a.splice(d.i, 1)[0]; a.splice(to, 0, m); return { [d.list]: a }; });
+    };
+    this._de = () => { this._drag = null; };
+    document.addEventListener('dragstart', this._ds); document.addEventListener('dragover', this._dov);
+    document.addEventListener('drop', this._dd); document.addEventListener('dragend', this._de);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('hashchange', this._hash);
+    window.removeEventListener('beforeunload', this._unload);
+    document.removeEventListener('dragstart', this._ds); document.removeEventListener('dragover', this._dov);
+    document.removeEventListener('drop', this._dd); document.removeEventListener('dragend', this._de);
+  }
+  findHandle(el, list) {
+    while (el && el !== document.body) {
+      const hs = el.matches('[data-drag-list]') ? [el] : el.querySelectorAll('[data-drag-list]');
+      if (hs.length === 1) return hs[0].dataset.dragList === list ? hs[0] : null;
+      if (hs.length > 1) return null;
+      el = el.parentElement;
+    }
+    return null;
+  }
+  blobUrl(d) {
+    if (!d.startsWith('data:')) return d;
+    this._blobs = this._blobs || {};
+    if (!this._blobs[d]) {
+      const c = d.indexOf(','), mime = (d.slice(0, c).match(/data:([^;]+)/) || [])[1] || 'image/png';
+      const bin = atob(d.slice(c + 1)), arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      this._blobs[d] = URL.createObjectURL(new Blob([arr], { type: mime }));
+    }
+    return this._blobs[d];
+  }
+  maxFit() { return 4 + 2 * Math.max(0, this.state.exps.length - 1); }
+  measure() {
+    const el = document.querySelector('[data-sheet]'); if (!el) return;
+    const top = el.getBoundingClientRect().top; let bottom = 0;
+    Array.from(el.children).forEach(c => { bottom = Math.max(bottom, c.getBoundingClientRect().bottom); });
+    const mm = 96 / 25.4, used = bottom - top + 12 * mm;
+    if (used > 297 * mm - 8 && (this.state.fit || 0) < this.maxFit()) this.setState(s => ({ fit: (s.fit || 0) + 1 }));
+  }
+  set(k) { return e => this.setState({ [k]: e.target.value }); }
+  setItem(list, i, field) {
+    return e => { const v = e.target.value; this.setState(s => ({ [list]: s[list].map((it, j) => j !== i ? it : (field ? Object.assign({}, it, { [field]: v }) : v)) })); };
+  }
+  remove(list, i) { return () => this.setState(s => ({ [list]: s[list].filter((_, j) => j !== i) })); }
+  add(list, blank, top) { return () => this.setState(s => ({ [list]: top ? [blank].concat(s[list]) : s[list].concat([blank]) })); }
+  up(list, i) { return () => this.setState(s => { if (i === 0) return null; const a = s[list].slice(); const t = a[i - 1]; a[i - 1] = a[i]; a[i] = t; return { [list]: a }; }); }
+  onFoto = e => {
+    const file = e.target.files && e.target.files[0]; e.target.value = '';
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 1000 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(blob => {
+          this.setState({ enviando: true });
+          fetch('/api/foto', { method: 'PUT', headers: { 'content-type': 'image/jpeg' }, body: blob, credentials: 'same-origin' })
+            .then(r => r.ok ? r.json() : Promise.reject(r.status))
+            .then(j => this.setState({ foto: j.url, enviando: false }))
+            .catch(st => { this.setState({ enviando: false }); window.alert(st === 401 ? 'Sessão expirada. Entre de novo.' : 'Não foi possível enviar a foto.'); });
+        }, 'image/jpeg', 0.88);
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  };
+  strList(list) { return this.state[list].map((v, i) => ({ v, i, onChange: this.setItem(list, i), remove: this.remove(list, i) })); }
+  vis(list) { return this.state[list].filter(v => v.trim()).map((v, i) => ({ v, sep: i > 0 })); }
+  renderVals() {
+    const s = this.state, p = this.props;
+    const mostrar = p.mostrarFoto ?? true;
+    const view = s.view || 'noir';
+    const fit = s.fit || 0, base = p.tamanhoTexto ?? 12, n = s.exps.length;
+    const corpoPt = Math.max(10, base - 0.5 * Math.min(fit, 4));
+    const k = Math.max(0, fit - 4);
+    const semDesc = Math.min(k, Math.max(0, n - 1)), ocultas = Math.min(Math.max(0, k - (n - 1)), Math.max(0, n - 1));
+    const urlPadrao = location.origin + '/curriculo';
+    const url = (s.url || '').trim() || urlPadrao;
+    let qrBg = '';
+    if (url && window.qrcode) { try { const q = window.qrcode(0, 'M'); q.addData(url); q.make(); qrBg = 'url("' + this.blobUrl(q.createDataURL(8, 0)) + '")'; } catch (e) {} }
+    let fitStatus = 'A Folha A4 cabe em uma página sem cortes.';
+    if (fit > 0 && k === 0) fitStatus = 'Para caber em uma página, o texto da Folha A4 foi reduzido para ' + corpoPt + ' pt.';
+    if (k > 0) fitStatus = 'Para caber em uma página, a Folha A4 foi resumida: ' + semDesc + ' experiência(s) sem descrição' + (ocultas ? ' e ' + ocultas + ' oculta(s)' : '') + ' (as mais abaixo na lista).';
+    fitStatus += (s.url || '').trim() ? ' O QR code leva ao link informado.' : ' O QR code leva a ' + urlPadrao + ' (deixe o campo vazio para usar este endereço).';
+    const sp = s.nome.trim().indexOf(' ');
+    const obj = s.objetivo.trim();
+    const btn = on => on ? ['#ece6da', '#0e0c0a'] : ['transparent', '#ece6da'];
+    const bN = btn(view === 'noir'), bE = btn(view === 'edit'), bF = btn(view === 'folha');
+    const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+    return {
+      isNoir: view === 'noir', isEdit: view === 'edit', sheetDisplay: view === 'folha' ? 'block' : 'none',
+      setNoir: () => this.setState({ view: 'noir' }), setEdit: () => this.setState({ view: 'edit' }), setFolha: () => this.setState({ view: 'folha' }),
+      bNoirBg: bN[0], bNoirFg: bN[1], bEditBg: bE[0], bEditFg: bE[1], bFolhaBg: bF[0], bFolhaFg: bF[1],
+      semFoto: !s.foto,
+      isPublic: s.route !== 'editar', locked: s.route === 'editar' && !s.unlocked,
+      urlPadrao,
+      salvoStatus: s.enviando ? 'ENVIANDO FOTO…' : ({ salvando: 'SALVANDO…', ok: '✓ SALVO NO SITE', erro: '⚠ ERRO AO SALVAR — TENTE DE NOVO' })[s.salvo] || ' ',
+      salvoCor: s.salvo === 'erro' ? '#e8a07a' : '#b9b0a0',
+      asideDisplay: s.route === 'editar' && s.unlocked ? 'block' : 'none',
+      senha: s.senha || '', onSenha: e => this.setState({ senha: e.target.value, erro: '' }), erro: s.erro || '',
+      lockTexto: s.checando ? 'Verificando acesso…' : 'Digite a senha para editar o currículo.',
+      lockBotao: 'Entrar',
+      entrar: e => {
+        e.preventDefault();
+        const v = s.senha || '';
+        if (!v) return this.setState({ erro: 'Digite a senha.' });
+        fetch('/api/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ senha: v }), credentials: 'same-origin' })
+          .then(r => r.json().then(j => ({ r, j })))
+          .then(({ r, j }) => {
+            if (!r.ok) return this.setState({ erro: j.erro || 'Não foi possível entrar.' });
+            this._lastSaved = undefined;
+            this.setState({ unlocked: true, senha: '', erro: '' });
+          })
+          .catch(() => this.setState({ erro: 'Sem conexão com o servidor.' }));
+      },
+      url: s.url || '', onUrl: this.set('url'), hasQr: !!qrBg, qrBg: qrBg || 'none', fitStatus,
+      qrNota: k > 0 ? 'Resumo · versão completa no site' : 'Versão completa no site',
+      sheetPos: view === 'folha' ? 'static' : 'absolute', sheetLeft: view === 'folha' ? 'auto' : '-99999px',
+      nomeA: sp < 0 ? s.nome.trim() : s.nome.trim().slice(0, sp), nomeB: sp < 0 ? '' : s.nome.trim().slice(sp + 1),
+      objIni: obj.charAt(0), objResto: obj.slice(1),
+      fotoBg: s.foto ? 'url("' + this.blobUrl(s.foto) + '")' : 'none', hasFoto: !!s.foto, onFoto: this.onFoto,
+      fotoVisivel: mostrar && !!s.foto, fotoVazia: mostrar && !s.foto,
+      fotoFilter: (p.fotoPB ?? true) ? 'grayscale(1) contrast(1.08)' : 'none',
+      corpo: corpoPt + 'pt',
+      nome: s.nome, onNome: this.set('nome'),
+      titulo: s.titulo, tituloCaps: s.titulo.toUpperCase(), onTitulo: this.set('titulo'),
+      objetivo: s.objetivo, onObjetivo: this.set('objetivo'),
+      contatos: this.strList('contatos'), contatosVis: this.vis('contatos'), addContato: this.add('contatos', ''),
+      exps: s.exps.map((x, i) => Object.assign({}, x, {
+        hasEmpresa: !!x.empresa.trim(), periodoCaps: x.periodo.toUpperCase(),
+        itens: x.desc.split(/;|\n/).map(t => t.trim().replace(/\.$/, '')).filter(Boolean).map(t => ({ t: cap(t) })),
+        onCargo: this.setItem('exps', i, 'cargo'), onEmpresa: this.setItem('exps', i, 'empresa'),
+        onPeriodo: this.setItem('exps', i, 'periodo'), onDesc: this.setItem('exps', i, 'desc'),
+        remove: this.remove('exps', i), up: this.up('exps', i), i,
+        descNaFolha: i < n - semDesc && !!x.desc.trim(), folhaDisplay: i < n - ocultas ? 'block' : 'none'
+      })),
+      addExp: this.add('exps', { cargo: '', empresa: '', periodo: '', desc: '' }, true),
+      forms: s.forms.map((f, i) => Object.assign({}, f, {
+        i, hasDetalhe: !!f.detalhe.trim(),
+        onTitulo: this.setItem('forms', i, 'titulo'), onDetalhe: this.setItem('forms', i, 'detalhe'), remove: this.remove('forms', i)
+      })),
+      hasForms: s.forms.length > 0, addForm: this.add('forms', { titulo: '', detalhe: '' }),
+      comps: this.strList('comps'), compsVis: this.vis('comps'), hasComps: this.vis('comps').length > 0, addComp: this.add('comps', ''),
+      habs: this.strList('habs'), habsVis: this.vis('habs'), hasHabs: this.vis('habs').length > 0, addHab: this.add('habs', ''),
+      removerFoto: () => this.setState({ foto: '' }),
+      printMode: s.printMode === 'view' && view !== 'folha' ? 'view' : 'folha',
+      imprimirVisual: () => this.setState({ printMode: 'view' }, () => setTimeout(() => window.print(), 80)),
+      imprimirFolha: () => this.setState({ printMode: 'folha' }, () => setTimeout(() => window.print(), 80)),
+      restaurar: () => { if (window.confirm('Apagar tudo e voltar ao texto de exemplo?')) this.setState(DEFAULTS()); }
+    };
+  }
+}
+</script>
+</body>
+</html>
