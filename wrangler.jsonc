@@ -12,7 +12,7 @@
   // Crie o namespace com: npx wrangler kv namespace create CV
   // e cole o id abaixo. (Em `wrangler dev` o id é ignorado e usa KV local.)
   "kv_namespaces": [
-    { "binding": "CV", "id": "COLE_AQUI_O_ID_DO_KV" }
+    { "binding": "CV", "id": "2d66d169b5954b48be0484c3d8fb1602" }
   ],
   "observability": { "enabled": true }
 }
